@@ -1,5 +1,4 @@
 import os
-import sys
 import argparse
 import asyncio
 import aiohttp
@@ -7,11 +6,10 @@ import pandas as pd
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.schema import CreateTable
-from sqlalchemy import Table, Column, Integer, Float, String, DateTime, func
 
 Base = declarative_base()
 os.environ['SQLALCHEMY_SILENCE_UBER_WARNING'] = '1'
+
 
 # Определение модели таблицы в базе данных
 class Weather(Base):
@@ -47,16 +45,21 @@ DB_SESSION = sessionmaker(bind=DB_ENGINE)
 async def request_weather_data():
     """Фуенкция запроса данных погоды через API OpenWeather."""
     async with aiohttp.ClientSession() as session:
-        async with session.get(OPENWEATHER_API_URL, params=OPENWEATHER_API_PARAMS) as response:
+        async with session.get(
+                OPENWEATHER_API_URL,
+                params=OPENWEATHER_API_PARAMS
+        ) as response:
             response.raise_for_status()
             data = await response.json()
             weather_data = {
                 'temperature': data['main']['temp'],
                 'wind_direction': data['wind']['deg'],
                 'wind_speed': data['wind']['speed'],
-                'pressure': data['main']['pressure'] / 1.33322,  # Перевод из гПа в мм рт.ст.
+                'pressure': data['main']['pressure'] / 1.33322,
                 'precipitation_type': data['weather'][0]['main'],
-                'precipitation_amount': data.get('rain', {}).get('1h', 0) + data.get('snow', {}).get('1h', 0),
+                'precipitation_amount': data.get(
+                    'rain', {}).get('1h', 0
+                                    ) + data.get('snow', {}).get('1h', 0),
             }
             return weather_data
 
@@ -117,8 +120,11 @@ async def main(args):
         # Ожидание перед следующим запросом
         await asyncio.sleep(180)  # Запрос каждые 3 минуты (180 секунд)
 
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Script for weather data processing')
-    parser.add_argument('--export', type=str, help='Export weather data to Excel file')
+    parser = argparse.ArgumentParser(
+        description='Script for weather data processing')
+    parser.add_argument('--export', type=str,
+                        help='Export weather data to Excel file')
     args = parser.parse_args()
     asyncio.run(main(args))
