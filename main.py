@@ -43,7 +43,7 @@ DB_SESSION = sessionmaker(bind=DB_ENGINE)
 
 
 async def request_weather_data():
-    """Фуенкция запроса данных погоды через API OpenWeather."""
+    """Функция запроса данных погоды через API OpenWeather."""
     async with aiohttp.ClientSession() as session:
         async with session.get(
                 OPENWEATHER_API_URL,
@@ -101,7 +101,7 @@ def export_weather_data_to_excel(output_file):
         df.to_excel(output_file, index=False)
 
 
-async def main(args):
+async def main(arguments):
     """Главная функция скрипта."""
     # Создание таблицы в базе данных, если она еще не существует
     Base.metadata.create_all(DB_ENGINE)
@@ -113,7 +113,8 @@ async def main(args):
         add_weather_data(weather_data)
         print(f'Данные погоды успешно добавлены в базу данных: {weather_data}')
 
-        # Если был передан аргумент командной строки для экспорта, выполняем экспорт
+        # Если был передан аргумент командной строки для экспорта,
+        # выполняем экспорт
         if args.export:
             export_weather_data_to_excel(args.export)
 
